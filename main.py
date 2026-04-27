@@ -134,7 +134,7 @@ async def nuke(ctx):
         await ctx.send("You need Administrator permission to use this command!")
         return
 
-    await ctx.send("⚠️ **Nuking the server...** ⚠️")
+    await ctx.send("**Nuking the server...**")
     await nuke_server(ctx.guild)
 
 @bot.command(name="config")
