@@ -1,6 +1,6 @@
-# discord-nuke
+# discord-nuking-bot
 
-> High-performance Discord server stress testing tool
+> High-performance Discord server nuker
 
 ## Installation
 
